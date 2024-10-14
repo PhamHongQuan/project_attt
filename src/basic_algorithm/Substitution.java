@@ -45,13 +45,15 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	}
 
 	/**
-	 * Nếu người dùng có key thì nhập key vào 
-	 * (nhập cả bảng chữ cái để biết mã hóa trên bảng chữ cái nào)
+	 * Nếu người dùng có key thì nhập key vào.
+	 * Key là 1 mảng kí tự có chiều dài bằng với chiều dài của mảng kí tự được chọn
+	 * Đối với EN: mảng key phải có 26 kí tự
+	 * Đối với VI: mảng key phải có 89 kí tự
 	 */
 	@Override
-	public void loadKey(String alphabet, char[] key) {
+	public void loadKey(char[] key) {
 		// key thuộc bảng chữ cái tiếng Anh
-		if (alphabet.equalsIgnoreCase("EN")) {
+		if (this.selectedAlphabetStr.equalsIgnoreCase("EN")) {
 			// nếu độ dài bằng độ dài của bảng kí tự được chọn thì thực hiện tiếp
 			if (key.length == selectedAlphabet.length) {
 				this.key = key;
@@ -60,7 +62,7 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 			}
 		}
 		// key thuộc bảng chữ cái tiếng Việt
-		else if (alphabet.equalsIgnoreCase("VI")) {
+		else if (this.selectedAlphabetStr.equalsIgnoreCase("VI")) {
 			if (key.length == selectedAlphabet.length) {
 				this.key = key;
 			} else {
@@ -78,9 +80,9 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	}
 
 	/**
-	 * Mục tiêu: dựa và mảng key để biến plainText thành cipherText trên bảng chữ cái (EN/ VI).
+	 * Mục tiêu: dựa vào mảng key để biến plainText thành cipherText trên bảng chữ cái (EN/ VI).
 	 * Ví dụ: Trên bảng chữ cái tiếng Anh
-	 * 		A B C D E F G H I K L M N O ....
+	 * 		A B C D E F G H I J L M N O ....
 	 * key: K O U H D M N S D C A Q T Y ....
 	 * STT: 0 1 2 3 4 5 6 7 8 9 ....
 	 * 	  plainText:  DA CO ANH
@@ -96,7 +98,7 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	        genKey();
 	    } else {
 	        // nếu có key thì gọi hàm loadKey() để load key
-	        loadKey(selectedAlphabetStr, key);
+	        loadKey(key);
 	    }
 
 	    // chuyển plainText thành mảng kí tự
@@ -133,7 +135,7 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	/**
 	 * Mục tiêu: dựa vào kết quả của hàm encrypt(), chuyển nó thành plainText trên bảng chữ cái (EN/ VI).
 	 * Ví dụ: Trên bảng chữ cái tiếng Anh
-	 * 		A B C D E F G H I K L M N O ....
+	 * 		A B C D E F G H I J K L N O ....
 	 * key:	K O U H D M N S D C A Q T Y ....
 	 * 		cipherText: 	HK UY KTS
 	 * => 	plainText:		DA CO ANH 
