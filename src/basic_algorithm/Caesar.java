@@ -2,21 +2,22 @@ package basic_algorithm;
 
 import java.util.Random;
 
-public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<Integer>{
+public class Caesar extends ABasicSecurity<Integer>{
 
 	public Caesar(String plainText, Integer key, String alphabet) {
 		super(plainText, key, alphabet);
 	}
 
 	/**
-	 * Mục tiêu: tạo ra 1 con số từ 0 -> 25 (đối với EN)
-	 * và từ 0 -> 88 (đối với VI), sau đó gán cho biến key.
+	 * Mục tiêu: tạo ra 1 con số từ 
+	 * 0 -> 25 (đối với EN)
+	 * 0 -> 88 (đối với VI), sau đó gán cho biến key.
 	 * key này là số vị trí dịch chuyển đi
 	 */
 	@Override
 	public void genKey() {
 		Random random = new Random();
-		this.key = random.nextInt(0, selectedAlphabet.length);
+		key = random.nextInt(0, selectedAlphabet.length);
 	}
 
 	/**
@@ -26,26 +27,26 @@ public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<In
 	 * Đối với VI: key phải là con số nằm trong (0, 88)
 	 */
 	@Override
-	public void loadKey(Integer key) {
-		if(this.selectedAlphabetStr.equalsIgnoreCase("EN")) {
+	public void loadKey(Integer keyInput) {
+		if(selectedAlphabetStr.equalsIgnoreCase("EN")) {
 			// độ dài của key <= 25
-			if(key >= 0 && key <= 25) {
-				this.key = key;
+			if(keyInput >= 0 && keyInput <= 25) {
+				key = keyInput;
 			} else {
 				throw new IllegalArgumentException("Key phải là số nhỏ hơn 26 trong bảng chữ cái tiếng Anh!!!");
 			}
 			
-		} else if (this.selectedAlphabetStr.equalsIgnoreCase("VI")) {
+		} else if (selectedAlphabetStr.equalsIgnoreCase("VI")) {
 			// độ dài của key <= 88
-			if(key >= 0 && key <= 88) {
-				this.key = key;
+			if(keyInput >= 0 && keyInput <= 88) {
+				key = keyInput;
 			} else {
 				throw new IllegalArgumentException("Key phải là số nhỏ hơn 89 trong bảng chữ cái tiếng Việt!!!");
 			}
 		} else {
 			// mặc định là EN (key <= 25)
-			if(key >= 0 && key <= 25) {
-				this.key = key;
+			if(keyInput >= 0 && keyInput <= 25) {
+				key = keyInput;
 			} else {
 				throw new IllegalArgumentException("Key phải là số nhỏ hơn 26 trong bảng chữ cái tiếng Anh!!!");
 			}
@@ -53,9 +54,14 @@ public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<In
 	}
 
 	/**
-	 * Mục tiêu: dựa vào khóa k để chuyển plainText thành cipherText
+	 * Mục tiêu: dựa vào khóa k và áp dụng công thức để chuyển plainText thành cipherText
+	 * Công thức: E(x) = (x + k) % n
+	 * Trong đó: 
+	 * 		x là thứ tự từ A - Z (bảng chữ cái EN_n=26) và từ A - Ỵ (bảng chữ cái VI_n=89) bắt đầu từ 0.
+	 * 		n là số lượng kí tự trong từng bảng chữ cái (EN -> n=26) (VI -> n=89)
 	 * Ví dụ: Trên bảng chữ cái tiếng Anh
 	 * 		A B C D E F G H I J K ....
+	 * x =  0 1 2 3 4 5 6 7 8 9 ...
 	 * k = 3
 	 * 		plainText:  ABC
 	 * 	=> cipherText:  DEF (dịch chuyển từ A về sau 3 kí tự)
@@ -65,7 +71,7 @@ public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<In
 		char[] cipherTextArray = new char[plainText.length()];
 
 		// kiểm tra coi người dùng có nhập key không
-	    if (this.key == null) {
+	    if (key == null) {
 	        //nếu không thì gọi hàm genKey() để tạo key
 	        genKey();
 	    } else {
@@ -74,19 +80,21 @@ public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<In
 	    }
 	    
 	    // chuyển plainText thành mảng kí tự
-	    char[] plainTextArray = this.plainText.toCharArray();
+	    char[] plainTextArray = plainText.toCharArray();
 	    
 	    // độ dài của bảng chữ cái
-	    int alphabetLength = this.selectedAlphabet.length; 
+	    int alphabetLength = selectedAlphabet.length; 
 	    
 	    for(int i = 0; i < plainTextArray.length; i++) {
 	    	// tìm vị trí của kí tự trong mảng selectedAlphabet
-	        int mark = findCharacterIndex(plainTextArray[i]);
+	        int x = findCharacterIndex(plainTextArray[i]);
 	        
-	        if(mark != -1) {
-	        	// dịch chuyển kí tự và sử dụng phép chia lấy dư để quay lại 'A' sau 'Z'
-	            cipherTextArray[i] = this.selectedAlphabet[(mark + key) % alphabetLength];
+	        if(x != -1) {
+	        	// áp dụng công thức E(x) = (x + k) % n và gán nó vào cho mảng cipherText
+	        	int position = (x + key) % alphabetLength;
+	            cipherTextArray[i] = selectedAlphabet[position];
 	        } else {
+	        	// ngược lại thì giữ nguyên
 	        	cipherTextArray[i] = plainTextArray[i];
 	        }
 	    }
@@ -96,17 +104,21 @@ public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<In
 	}
 
 	private int findCharacterIndex(char c) {
-	    for (int j = 0; j < selectedAlphabet.length; j++) {
-	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong slectedAlphabet => return vị trí của kí tự đó
-	        if (c == selectedAlphabet[j]) {
-	            return j; 
+	    for (int i = 0; i < selectedAlphabet.length; i++) {
+	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong selectedAlphabet => return vị trí của kí tự đó
+	        if (c == selectedAlphabet[i]) {
+	            return i; 
 	        }
 	    }
 	    return -1; 
 	}
 	
+	
 	/**
 	 * Mục tiêu: dựa vào kết quả của hàm encrypt(), chuyển nó thành plainText trên bảng chữ cái (EN/ VI).
+	 * Công thức: D(y) = (y - k) % n
+	 * Trong đó: 
+	 * 		y là vị trí của kí tự đã được mã hóa trong bảng chữ cái.
 	 * Ví dụ: Trên bảng chữ cái tiếng Anh
 	 * 		A B C D E F G H I J K L M N O ....
 	 * key:	3
@@ -115,32 +127,41 @@ public class Caesar extends ABasicSecurity<Integer> implements IBasicSecurity<In
 	 */
 	@Override
 	public String decrypt() {
-		// cipherText là kết quả của hàm encrypt()
-		this.cipherText = encrypt();
-		
-	    char[] decryptedTextArray = new char[cipherText.length()];
+	    // cipherText là kết quả của hàm encrypt()
+	    cipherText = encrypt();
+	    
+	    char[] plainTextArray = new char[cipherText.length()];
 
-	    // chuyển cipherText thành mảng kí tự
-	    char[] cipherTextArray = this.cipherText.toCharArray();
+	    // chuyển cipherText thành mảng ký tự
+	    char[] cipherTextArray = cipherText.toCharArray();
 	    
 	    // độ dài của bảng chữ cái
-	    int alphabetLength = this.selectedAlphabet.length; 
+	    int alphabetLength = selectedAlphabet.length; 
 
 	    for (int i = 0; i < cipherTextArray.length; i++) {
-	        // tìm vị trí của kí tự trong mảng selectedAlphabet
-	        int mark = findCharacterIndex(cipherTextArray[i]);
+	        // tìm vị trí của ký tự trong mảng selectedAlphabet
+	        int y = findCharacterIndex(cipherTextArray[i]);
 	        
-	        if (mark != -1) {
-	            // dịch chuyển kí tự ngược lại và sử dụng phép chia lấy dư để quay lại 'Z' nếu vượt quá 'A'
-	            decryptedTextArray[i] = this.selectedAlphabet[(mark - key + alphabetLength) % alphabetLength];
+	        if (y != -1) {
+	            // áp dụng công thức D(y) = (y - k) % n
+	            int position = (y - key) % alphabetLength;
+	            
+	            //kiểm tra nếu position âm thì cộng thêm độ dài của bảng chữ cái
+	            if (position < 0) {
+	                position += alphabetLength;
+	            }
+	            
+	            plainTextArray[i] = selectedAlphabet[position];
 	        } else {
-	            decryptedTextArray[i] = cipherTextArray[i];
+	        	// giữ nguyên kí tự không phải trong bảng chữ cái (là khoảng trắng)
+	            plainTextArray[i] = cipherTextArray[i]; 
 	        }
 	    }
 	    
-	    String decryptedText = new String(decryptedTextArray);
-	    return decryptedText;
+	    String plainText = new String(plainTextArray);
+	    return plainText;
 	}
+
 
 
 }

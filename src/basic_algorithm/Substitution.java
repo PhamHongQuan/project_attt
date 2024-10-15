@@ -2,18 +2,15 @@ package basic_algorithm;
 
 import java.util.Random;
 
-/**
- * class Substitution có biến key là kiểu dữ liệu char[]
- */
-public class Substitution extends ABasicSecurity<char[]> implements IBasicSecurity<char[]> {
+public class Substitution extends ABasicSecurity<char[]> {
 
 	public Substitution(String plainText, char[] key, String alphabet) {
 		super(plainText, key, alphabet);
 	}
 
 	/**
-	 * Mục tiêu: tạo 1 mảng các kí tự được sắp xếp lại theo bảng chữ cái ban đầu (EN/ VI) 
-	 * sau đó gán cho biến key. 
+	 * Mục tiêu: tạo 1 mảng các kí tự được sắp xếp lại theo bảng chữ cái ban đầu (EN/ VI). 
+	 * Sau đó gán cho biến key. 
 	 * Ví dụ: bảng chữ cái EN: 		A B C D .... 
 	 * => kết quả sau khi genKey:	M D O S....
 	 */
@@ -35,7 +32,7 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 			swap(keyChar, i, j);
 		}
 
-		this.key = keyChar;
+		key = keyChar;
 	}
 
 	private void swap(char[] array, int i, int j) {
@@ -51,28 +48,28 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	 * Đối với VI: mảng key phải có 89 kí tự
 	 */
 	@Override
-	public void loadKey(char[] key) {
+	public void loadKey(char[] keyInput) {
 		// key thuộc bảng chữ cái tiếng Anh
-		if (this.selectedAlphabetStr.equalsIgnoreCase("EN")) {
-			// nếu độ dài bằng độ dài của bảng kí tự được chọn thì thực hiện tiếp
-			if (key.length == selectedAlphabet.length) {
-				this.key = key;
+		if (selectedAlphabetStr.equalsIgnoreCase("EN")) {
+			// nếu độ dài bằng độ dài của bảng kí tự được chọn thì gán cho biến key
+			if (keyInput.length == selectedAlphabet.length) {
+				key = keyInput;
 			} else {
 				throw new IllegalArgumentException("Key không đủ 26 kí tự trong bảng chữ cái tiếng Anh!!!");
 			}
 		}
 		// key thuộc bảng chữ cái tiếng Việt
-		else if (this.selectedAlphabetStr.equalsIgnoreCase("VI")) {
-			if (key.length == selectedAlphabet.length) {
-				this.key = key;
+		else if (selectedAlphabetStr.equalsIgnoreCase("VI")) {
+			if (keyInput.length == selectedAlphabet.length) {
+				key = keyInput;
 			} else {
 				throw new IllegalArgumentException("Key không đủ 89 kí tự trong bảng chữ cái tiếng Anh!!!");
 			}
 		}
 		// mặc định là tiếng Anh
 		else {
-			if (key.length == selectedAlphabet.length) {
-				this.key = key;
+			if (keyInput.length == selectedAlphabet.length) {
+				key = keyInput;
 			} else {
 				throw new IllegalArgumentException("Key không đủ 26 kí tự trong bảng chữ cái tiếng Anh!!!");
 			}
@@ -93,7 +90,7 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	    char[] cipherTextArray = new char[plainText.length()];
 
 	    // kiểm tra coi người dùng có nhập key không
-	    if (this.key == null) {
+	    if (key == null) {
 	        //nếu không thì gọi hàm genKey() để tạo key
 	        genKey();
 	    } else {
@@ -102,15 +99,15 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	    }
 
 	    // chuyển plainText thành mảng kí tự
-	    char[] plainTextArray = this.plainText.toCharArray();
+	    char[] plainTextArray = plainText.toCharArray();
 
 	    for (int i = 0; i < plainTextArray.length; i++) {
 	        // tìm vị trí của kí tự trong mảng selectedAlphabet
 	        int mark = findCharacterIndex(plainTextArray[i]);
 
 	        if (mark != -1) {
-	            // mã hóa kí tự và lưu vào mảng cipherText
-	        	cipherTextArray[i] = this.key[mark];
+	            // thay thế kí tự và lưu vào mảng cipherText
+	        	cipherTextArray[i] = key[mark];
 	        } else {
 	            // nếu không thì giữ nguyên kí tự gốc
 	            cipherTextArray[i] = plainTextArray[i];
@@ -123,7 +120,7 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 
 	private int findCharacterIndex(char c) {
 	    for (int j = 0; j < selectedAlphabet.length; j++) {
-	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong slectedAlphabet => return vị trí của kí tự đó
+	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong selectedAlphabet => return vị trí của kí tự đó
 	        if (c == selectedAlphabet[j]) {
 	            return j; 
 	        }
@@ -143,20 +140,20 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	@Override
 	public String decrypt() {
 		// cipherText là kết quả của hàm encrypt()
-		this.cipherText = encrypt();
+		cipherText = encrypt();
 		
 	    char[] plainTextArray = new char[cipherText.length()];
 
 	    // chuyển cipherText thành mảng kí tự
-	    char[] cipherTextArray = this.cipherText.toCharArray();
+	    char[] cipherTextArray = cipherText.toCharArray();
 
 	    for (int i = 0; i < cipherTextArray.length; i++) {
 	        // tìm vị trí của kí tự đã mã hóa trong mảng key
 	        int mark = findKeyCharacterIndex(cipherTextArray[i]);
 
 	        if (mark != -1) {
-	            // giải mã kí tự và lưu vào mảng plainText
-	            plainTextArray[i] = this.selectedAlphabet[mark];
+	            // thay thế kí tự và lưu vào mảng plainText
+	            plainTextArray[i] = selectedAlphabet[mark];
 	        } else {
 	            // giữ nguyên kí tự đã mã hóa
 	            plainTextArray[i] = cipherTextArray[i];
@@ -168,9 +165,9 @@ public class Substitution extends ABasicSecurity<char[]> implements IBasicSecuri
 	}
 
 	private int findKeyCharacterIndex(char c) {
-	    for (int j = 0; j < this.key.length; j++) {
+	    for (int j = 0; j < key.length; j++) {
 	        // kiểm tra nếu kí tự hiện tại bằng kí tự trong key => trả về vị trí của kí tự đó
-	        if (c == this.key[j]) {
+	        if (c == key[j]) {
 	            return j; 
 	        }
 	    }
