@@ -5,19 +5,14 @@ public abstract class ABasicSecurity<T> {
     protected T key;
     protected char[] alphabetEn, alphabetVi, selectedAlphabet;
 
-    public ABasicSecurity(String plainText, T keyInput, String alphabet) {
-        plainText = formatPlainText(plainText);
+    public ABasicSecurity(String plainTextInput, T keyInput, String alphabet) {
+        plainText = plainTextInput.trim().toUpperCase();
         key = keyInput;
         initializeAlphabets();
         selectAlphabet(alphabet);
         validatePlainText();
     }
 
-    // Đảm bảo plainText nhập vào phải là chữ IN HOA và xóa khoảng trắng dư thừa
-    private String formatPlainText(String plainText) {
-        return plainText.toUpperCase().trim();
-    }
-    
     // Khởi tạo 2 bảng chữ cái ANH - VIET
     private void initializeAlphabets() {
         // bảng chữ cái tiếng Anh
@@ -62,16 +57,38 @@ public abstract class ABasicSecurity<T> {
                 }
             }
             if (!isValid) {
-                throw new IllegalArgumentException("Ký tự '" + c + "' không hợp lệ với bảng chữ cái " + selectedAlphabetStr);
+                throw new IllegalArgumentException("Kí tự '" + c + "' không hợp lệ với bảng chữ cái " + selectedAlphabetStr);
             }
         }
     }
 
     public abstract void genKey(); 
 
-    public abstract void loadKey(T key); 
+    public abstract void loadKey(T keyInput); 
 
     public abstract String encrypt();
 
     public abstract String decrypt();
+    
+    // Kiểm tra key có tồn tại không
+	protected void checkKeyValid() {
+		// kiểm tra coi người dùng có nhập key không
+	    if (key == null) {
+	        //nếu không thì gọi hàm genKey() để tạo key
+	        genKey();
+	    } else {
+	        // nếu có key thì gọi hàm loadKey() để load key
+	        loadKey(key);
+	    }
+	}
+	
+	protected int findCharacterIndex(char c) {
+	    for (int i = 0; i < selectedAlphabet.length; i++) {
+	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong selectedAlphabet => return vị trí của kí tự đó
+	        if (c == selectedAlphabet[i]) {
+	            return i; 
+	        }
+	    }
+	    return -1; 
+	}
 }

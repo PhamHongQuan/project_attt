@@ -68,17 +68,10 @@ public class Caesar extends ABasicSecurity<Integer>{
 	 */
 	@Override
 	public String encrypt() {
+		super.checkKeyValid();
+		
 		char[] cipherTextArray = new char[plainText.length()];
 
-		// kiểm tra coi người dùng có nhập key không
-	    if (key == null) {
-	        //nếu không thì gọi hàm genKey() để tạo key
-	        genKey();
-	    } else {
-	        // nếu có key thì gọi hàm loadKey() để load key
-	        loadKey(key);
-	    }
-	    
 	    // chuyển plainText thành mảng kí tự
 	    char[] plainTextArray = plainText.toCharArray();
 	    
@@ -87,7 +80,7 @@ public class Caesar extends ABasicSecurity<Integer>{
 	    
 	    for(int i = 0; i < plainTextArray.length; i++) {
 	    	// tìm vị trí của kí tự trong mảng selectedAlphabet
-	        int x = findCharacterIndex(plainTextArray[i]);
+	        int x = super.findCharacterIndex(plainTextArray[i]);
 	        
 	        if(x != -1) {
 	        	// áp dụng công thức E(x) = (x + k) % n và gán nó vào cho mảng cipherText
@@ -103,16 +96,6 @@ public class Caesar extends ABasicSecurity<Integer>{
 		return cipherText;
 	}
 
-	private int findCharacterIndex(char c) {
-	    for (int i = 0; i < selectedAlphabet.length; i++) {
-	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong selectedAlphabet => return vị trí của kí tự đó
-	        if (c == selectedAlphabet[i]) {
-	            return i; 
-	        }
-	    }
-	    return -1; 
-	}
-	
 	
 	/**
 	 * Mục tiêu: dựa vào kết quả của hàm encrypt(), chuyển nó thành plainText trên bảng chữ cái (EN/ VI).
@@ -140,13 +123,13 @@ public class Caesar extends ABasicSecurity<Integer>{
 
 	    for (int i = 0; i < cipherTextArray.length; i++) {
 	        // tìm vị trí của ký tự trong mảng selectedAlphabet
-	        int y = findCharacterIndex(cipherTextArray[i]);
+	        int y = super.findCharacterIndex(cipherTextArray[i]);
 	        
 	        if (y != -1) {
 	            // áp dụng công thức D(y) = (y - k) % n
 	            int position = (y - key) % alphabetLength;
 	            
-	            //kiểm tra nếu position âm thì cộng thêm độ dài của bảng chữ cái
+	            // kiểm tra nếu position âm thì cộng thêm độ dài của bảng chữ cái
 	            if (position < 0) {
 	                position += alphabetLength;
 	            }

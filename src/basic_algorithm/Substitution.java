@@ -87,23 +87,16 @@ public class Substitution extends ABasicSecurity<char[]> {
 	 */
 	@Override
 	public String encrypt() {
+		super.checkKeyValid();
+		
 	    char[] cipherTextArray = new char[plainText.length()];
-
-	    // kiểm tra coi người dùng có nhập key không
-	    if (key == null) {
-	        //nếu không thì gọi hàm genKey() để tạo key
-	        genKey();
-	    } else {
-	        // nếu có key thì gọi hàm loadKey() để load key
-	        loadKey(key);
-	    }
 
 	    // chuyển plainText thành mảng kí tự
 	    char[] plainTextArray = plainText.toCharArray();
 
 	    for (int i = 0; i < plainTextArray.length; i++) {
 	        // tìm vị trí của kí tự trong mảng selectedAlphabet
-	        int mark = findCharacterIndex(plainTextArray[i]);
+	        int mark = super.findCharacterIndex(plainTextArray[i]);
 
 	        if (mark != -1) {
 	            // thay thế kí tự và lưu vào mảng cipherText
@@ -116,16 +109,6 @@ public class Substitution extends ABasicSecurity<char[]> {
 
 	    String cipherText = new String(cipherTextArray);
 	    return cipherText; 
-	}
-
-	private int findCharacterIndex(char c) {
-	    for (int j = 0; j < selectedAlphabet.length; j++) {
-	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong selectedAlphabet => return vị trí của kí tự đó
-	        if (c == selectedAlphabet[j]) {
-	            return j; 
-	        }
-	    }
-	    return -1; 
 	}
 
 

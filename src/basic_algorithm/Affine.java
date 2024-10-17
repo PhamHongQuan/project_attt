@@ -57,7 +57,6 @@ public class Affine extends ABasicSecurity<int[]> {
 	}
 	
 
-
 	
 	/**
 	 * Mục tiêu: áp dụng công thức để tìm E(x.
@@ -75,17 +74,10 @@ public class Affine extends ABasicSecurity<int[]> {
 	 */
 	@Override
 	public String encrypt() {
+		super.checkKeyValid();
+		
 		char[] cipherTextArray = new char[plainText.length()];
 
-		// kiểm tra coi người dùng có nhập key không
-	    if (key == null) {
-	        //nếu không thì gọi hàm genKey() để tạo key
-	        genKey();
-	    } else {
-	        // nếu có key thì gọi hàm loadKey() để load key
-	        loadKey(key);
-	    }
-	    
 	    // chuyển plainText thành mảng kí tự
 	    char[] plainTextArray = plainText.toCharArray();
 	    
@@ -111,17 +103,6 @@ public class Affine extends ABasicSecurity<int[]> {
 	}
 
 	
-	private int findCharacterIndex(char c) {
-	    for (int j = 0; j < selectedAlphabet.length; j++) {
-	    	// kiểm tra nếu kí tự hiện tại bằng kí tự trong slectedAlphabet => return vị trí của kí tự đó
-	        if (c == selectedAlphabet[j]) {
-	            return j; 
-	        }
-	    }
-	    return -1; 
-	}
-	
-
 	/**
 	 * Tương tự như hàm mã hóa trên, chỉ khác cái công thức tính D(x)
 	 * D(x) = (a^-1 * (x-b)) % n
@@ -155,11 +136,14 @@ public class Affine extends ABasicSecurity<int[]> {
 	    
 	    for (int i = 0; i < cipherTextArray.length; i++) {
 	        // tìm vị trí của kí tự trong mảng selectedAlphabet
-	        int mark = findCharacterIndex(cipherTextArray[i]);
+	        int mark = super.findCharacterIndex(cipherTextArray[i]);
 	        
 	        if (mark != -1) {
 	        	// áp dụng công thức D(x) = (a^-1 (x-b)) % n và gán nó vào cho mảng plainTextArray
 	        	int position = (aInverse * (mark - b)) % alphabetLength;
+	        	if (position < 0) {
+	        	    position += alphabetLength;
+	        	}
 	        	plainTextArray[i] = selectedAlphabet[position];
 	        } else {
 	        	plainTextArray[i] = cipherTextArray[i];
